@@ -1,9 +1,10 @@
 import numpy as np
 
 phase_space_dtype = np.dtype([
-    ('pos', 'float64', 3),
-    ('dir', 'float64', 3),
-    ('e', 'float64')
+    ('wgt', 'float32'),
+    ('pos', 'float32', 3),
+    ('dir', 'float32', 3),
+    ('e',   'float32')
     ])
 
 tally_dtype = np.dtype([
@@ -13,19 +14,23 @@ tally_dtype = np.dtype([
 class SourceBank(object):
 
     def __init__(self, n_sites, pos, energy):
+        self.sample_external_source(n_sites, pos, energy)
+        return
+
+    def sample_external_source(self, n_sites, pos, energy):
         self.array = np.empty(n_sites, dtype=phase_space_dtype)
+        self.array['wgt'] = 1.
         self.array['pos'] = pos
-        self.array['dir'] = [self._isotropic_dist_angle() for i in range(n_sites)]
+        self.array['dir'] = self._sample_isotropic_angles(n_sites)
         self.array['e']   = energy
         return
 
-    def _isotropic_dist_angle(self):
+    def _sample_isotropic_angles(self, n):
         phi = 2.*np.pi*np.random.random()
         mu  = 2.*np.random.random() - 1.
-        return [ mu, 
+        return [[ mu, 
                 np.sqrt(1.-mu**2) * np.cos(phi),
-                np.sqrt(1.-mu**2) * np.sin(phi)
-                ]
+                np.sqrt(1.-mu**2) * np.sin(phi) ] for i in range(n) ]
 
 class TallyBins(object):
 
