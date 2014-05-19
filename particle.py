@@ -11,26 +11,24 @@ tally_dtype = np.dtype([
     ('fission', 'float64', 1),
     ])
 
-class SourceBank(object):
-    """ A bank of sites from a point, isotropic, monoenergetic source.
+class SourceBank(np.ndarray):
+    """ An array of sites from a point, isotropic, monoenergetic source.
 
     Args:
         n_sites (int): number of source sites
         pos ([float, float]): position in 2D cartesian space
         energy (float): energy of source
 
-    Attributes:
-        array (np.array(dtype=phase_space_dtype)): array of banked sites
-
     """
-    def __init__(self, n_sites, pos, energy):
-        self.array = np.empty(n_sites, dtype=phase_space_dtype)
-        self.array['wgt'] = 1.
-        self.array['pos'] = pos
-        self.array['dir'] = [[np.cos(phi), np.sin(phi)] 
+    def __new__(cls, n_sites, pos, energy):
+        array = np.ndarray.__new__(cls, n_sites, dtype=phase_space_dtype)
+        array['wgt'] = 1.
+        array['pos'] = pos
+        array['dir'] = [[np.cos(phi), np.sin(phi)] 
                 for phi in 2.*np.pi*np.random.random(n_sites) ]
-        self.array['e']   = energy
-        return
+        array['e']   = energy
+        return array
+
 
 class TallyBins(object):
 
